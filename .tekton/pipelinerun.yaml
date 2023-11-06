@@ -5,6 +5,7 @@ metadata:
   annotations:
     # How many runs we want to keep.
     pipelinesascode.tekton.dev/max-keep-runs: "5"
+    pipelinesascode.tekton.dev/on-target-branch: "main"
 spec:
   params:
     # The variable with brackets are special to Pipelines as Code
