@@ -19,6 +19,8 @@ ls -la /tmp/replays
 /tmp/replays/push-2023-11-06T21.14.11.314.sh
 
 
+git mv files/1_file.txt files/renamed_1_file.txt
+
 
 
 
