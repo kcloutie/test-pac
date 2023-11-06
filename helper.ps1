@@ -37,3 +37,8 @@ targetURL="http://controller.paac-127-0-0-1.nip.io"
 [[ ${1:-""} == -l ]] && targetURL=${GOSMEE_DEBUG_SERVICE:-"http://localhost:8080"}
 curl -sSi -H "Content-Type: application/json" -H 'X-Github-Hook-Installation-Target-Type: integration' -H 'X-Forwarded-For: 140.82.115.40' -H 'X-Hub-Signature-256: sha256=7d0c314789270b0caa6f551a3be9a2887fded13618768752aa03c09ccb91bdf3' -H 'X-Hub-Signature: sha1=20f86970a5a34c1fa52ff4ee298922c2687909f3' -H 'X-Github-Hook-Installation-Target-Id: 419254' -H 'User-Agent: GitHub-Hookshot/89a7806' -H 'X-Forwarded-Host: hook.pipelinesascode.com' -H 'X-Github-Event: 
 push' -H 'X-Forwarded-Proto: https' -H 'X-Github-Delivery: 745ab5e8-7ce9-11ee-8168-7871bd3a061d' -H 'X-Github-Hook-Id: 441514450'  -X POST -d @./push-2023-11-06T21.14.11.314.json ${targetURL}
+
+
+for ($i = 0; $i -lt 50; $i++) {
+  (New-Guid | Select-Object -ExpandProperty Guid) | Set-Content -Path "files/$($i)_file.txt" -Force
+}
