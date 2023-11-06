@@ -1,0 +1,15 @@
+apiVersion: pipelinesascode.tekton.dev/v1alpha1
+kind: Repository
+metadata:
+  name: test-pac
+  namespace: test-pac
+spec:
+  url: 'https://github.com/kcloutie/test-pac'
+  git_provider:
+    secret:
+      key: password
+      name: github-https
+    webhook_secret:
+      key: webhook.secret
+      name: github-https
+  
