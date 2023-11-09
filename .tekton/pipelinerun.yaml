@@ -5,8 +5,10 @@ metadata:
   annotations:
     # How many runs we want to keep.
     pipelinesascode.tekton.dev/max-keep-runs: "5"
-    pipelinesascode.tekton.dev/on-target-branch: "main"
-    pipelinesascode.tekton.dev/on-event: "push"
+    pipelinesascode.tekton.dev/on-cel-expression: >-
+      event.matches('^pull_request$|^push$') && 
+      target_branch.matches('(main|master)$') 
+      all_changed_files.matches("files/")
 spec:
   params:
     # The variable with brackets are special to Pipelines as Code

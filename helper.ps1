@@ -1,4 +1,3 @@
-export KUBECONFIG=/home/kcloutie/.kube/config.kind
 kubectl apply -f ./manifests
 kubectl delete -f ./manifests
 
@@ -8,37 +7,45 @@ kubectl logs deployment/pipelines-as-code-controller -n pipelines-as-code | snaz
 kubectl logs deployment/pipelines-as-code-watcher -n pipelines-as-code | snazy
 kubectl logs deployment/pipelines-as-code-webhook -n pipelines-as-code | snazy
 
+kubectl get events --sort-by='.metadata.creationTimestamp' -n pac-e2e-test-j5nlr
+
+
 kubectl -n pipelines-as-code delete secret pipelines-as-code-secret
 kubectl -n pipelines-as-code create secret generic pipelines-as-code-secret \
 --from-file secrets/github-private-key \
 --from-literal github-application-id=$(pass show github-app/github-application-id) \
 --from-literal webhook.secret=$(pass show github-app/webhook.secret) 
 
+export KUBECONFIG=/home/kcloutie/.kube/config.kind
+export TEST_GITHUB_API_URL=api.github.com
+export TEST_GITHUB_REPO_INSTALLATION_ID="43763482"
+export TEST_GITHUB_TOKEN=????????????????????????
+export TEST_GITHUB_REPO_OWNER=kcloutie/test-pac
+export TEST_GITHUB_REPO_OWNER_GITHUBAPP=kcloutie/test-pac
+export TEST_EL_URL=http://controller.paac-127-0-0-1.nip.io
+export TEST_EL_WEBHOOK_SECRET=$(pass show github-app/webhook.secret)
+export TEST_GITEA_API_URL=http://localhost:3000
+export TEST_GITEA_USERNAME=pac
+export TEST_GITEA_PASSWORD=pac
+export TEST_GITEA_REPO_OWNER=pac/pac
+export TEST_GITEA_SMEEURL=https://hook.pipelinesascode.com/KeaQJYHIiKea
+# export TEST_NOCLEANUP=true
+
+cd test/; go test -tags=e2e -v -run TestGithub .
+cd test/; go test -timeout=20m -tags=e2e -v -run TestGitea .
+go test -tags=e2e  -v -run ^TestGiteaParamsChangedFilesCEL$ .
+
+curl -L \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer ??????" \
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  https://api.github.com/app/installations
+
+
 rm -r /tmp/replays
 ls -la /tmp/replays
-/tmp/replays/push-2023-11-06T21.14.11.314.sh
-
 
 git mv files/1_file.txt files/renamed_1_file.txt
-
-
-
-
-#!/bin/bash
-#
-# Replay script with headers and JSON payload to the target controller.
-#
-# You can switch the targetURL to another one with the -l switch, which defaults
-# to http://localhost:8080.
-#
-# You can customze this target with the env variable: GOSMEE_DEBUG_SERVICE
-set -euxf
-cd $(dirname $(readlink -f $0))
-
-targetURL="http://controller.paac-127-0-0-1.nip.io"
-[[ ${1:-""} == -l ]] && targetURL=${GOSMEE_DEBUG_SERVICE:-"http://localhost:8080"}
-curl -sSi -H "Content-Type: application/json" -H 'X-Github-Hook-Installation-Target-Type: integration' -H 'X-Forwarded-For: 140.82.115.40' -H 'X-Hub-Signature-256: sha256=7d0c314789270b0caa6f551a3be9a2887fded13618768752aa03c09ccb91bdf3' -H 'X-Hub-Signature: sha1=20f86970a5a34c1fa52ff4ee298922c2687909f3' -H 'X-Github-Hook-Installation-Target-Id: 419254' -H 'User-Agent: GitHub-Hookshot/89a7806' -H 'X-Forwarded-Host: hook.pipelinesascode.com' -H 'X-Github-Event: 
-push' -H 'X-Forwarded-Proto: https' -H 'X-Github-Delivery: 745ab5e8-7ce9-11ee-8168-7871bd3a061d' -H 'X-Github-Hook-Id: 441514450'  -X POST -d @./push-2023-11-06T21.14.11.314.json ${targetURL}
 
 
 for ($i = 0; $i -lt 50; $i++) {
