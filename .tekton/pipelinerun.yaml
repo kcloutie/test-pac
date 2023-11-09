@@ -7,7 +7,7 @@ metadata:
     pipelinesascode.tekton.dev/max-keep-runs: "5"
     pipelinesascode.tekton.dev/on-cel-expression: >-
       event.matches('^pull_request$|^push$') && 
-      target_branch.matches('(main|master)$') 
+      target_branch.matches('(main|master)$') && 
       all_changed_files.matches("files/")
 spec:
   params:
