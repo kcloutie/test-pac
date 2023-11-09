@@ -5,8 +5,10 @@ metadata:
   annotations:
     # How many runs we want to keep.
     pipelinesascode.tekton.dev/max-keep-runs: "5"
-    pipelinesascode.tekton.dev/on-target-branch: "main"
-    pipelinesascode.tekton.dev/on-event: "push"
+    pipelinesascode.tekton.dev/on-cel-expression: >-
+      event.matches('^pull_request$|^push$') && 
+      target_branch.matches('(main|master)$') && 
+      all_changed_files.matches("files/")
 spec:
   params:
     # The variable with brackets are special to Pipelines as Code
@@ -34,46 +36,19 @@ spec:
       - name: deleted_files
       - name: modified_files
       - name: renamed_files
-    workspaces:
-      - name: source
-      - name: basic-auth
     tasks:
-      - name: noop-task
-        displayName: Task with no effect
-        params:
-          - name: all_changed_files
-            value: $(params.all_changed_files)
-          - name: added_files
-            value: $(params.added_files)
-          - name: deleted_files
-            value: $(params.deleted_files)
-          - name: modified_files
-            value: $(params.modified_files)
-          - name: renamed_files
-            value: $(params.renamed_files)
-        workspaces:
-          - name: source
-            workspace: source
+      - name: changed-files
         taskSpec:
-          workspaces:
-            - name: source
           steps:
-            - name: noop-task
+            - name: test-changed-files
               image: registry.access.redhat.com/ubi9/ubi-micro
-              workingDir: $(workspaces.source.path)
               script: |
-                exit 0
-  workspaces:
-  - name: source
-    volumeClaimTemplate:
-      spec:
-        accessModes:
-          - ReadWriteOnce
-        resources:
-          requests:
-            storage: 1Gi
-  # This workspace will inject secret to help the git-clone task to be able to
-  # checkout the private repositories
-  - name: basic-auth
-    secret:
-      secretName: "{{ git_auth_secret }}"
+                # reply Should be:
+                cat <<EOF
+                changed files...
+                all_changed_files: {{ all_changed_files }}
+                added_files: {{ added_files }}
+                deleted_files: {{ deleted_files }}
+                modified_files: {{ modified_files }}
+                renamed_files: {{ renamed_files }}
+                EOF
