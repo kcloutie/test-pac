@@ -1,54 +1,19 @@
+---
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: pipelinerun-generic
+  name: "pipelinerun-rlrs"
   annotations:
-    # How many runs we want to keep.
-    pipelinesascode.tekton.dev/max-keep-runs: "5"
-    pipelinesascode.tekton.dev/on-cel-expression: >-
-      event.matches('^pull_request$|^push$') && 
-      target_branch.matches('(main|master)$') && 
-      all_changed_files.matches("files/")
+    pipelinesascode.tekton.dev/target-namespace: "pac-e2e-ns-lcj2n"
+    pipelinesascode.tekton.dev/on-target-branch: "[main]"
+    pipelinesascode.tekton.dev/on-event: "[pull_request]"
 spec:
-  params:
-    # The variable with brackets are special to Pipelines as Code
-    # They will automatically be expanded with the events from Github.
-    - name: repo_url
-      value: "{{ repo_url }}"
-    - name: revision
-      value: "{{ revision }}"
-    - name: all_changed_files
-      value: "{{ all_changed_files }}"
-    - name: added_files
-      value: "{{ added_files }}"
-    - name: deleted_files
-      value: "{{ deleted_files }}"
-    - name: modified_files
-      value: "{{ modified_files }}"
-    - name: renamed_files
-      value: "{{ renamed_files }}"
   pipelineSpec:
-    params:
-      - name: repo_url
-      - name: revision
-      - name: all_changed_files
-      - name: added_files
-      - name: deleted_files
-      - name: modified_files
-      - name: renamed_files
     tasks:
-      - name: changed-files
+      - name: task
+        displayName: "The Task name is Task"
         taskSpec:
           steps:
-            - name: test-changed-files
+            - name: task
               image: registry.access.redhat.com/ubi9/ubi-micro
-              script: |
-                # reply Should be:
-                cat <<EOF
-                changed files...
-                all_changed_files: {{ all_changed_files }}
-                added_files: {{ added_files }}
-                deleted_files: {{ deleted_files }}
-                modified_files: {{ modified_files }}
-                renamed_files: {{ renamed_files }}
-                EOF
+              command: ["/bin/echo", "HELLOMOTO"]
