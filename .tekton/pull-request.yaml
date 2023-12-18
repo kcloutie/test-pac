@@ -1,0 +1,29 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: pipelinerun-pull-request
+  annotations:
+    # How many runs we want to keep.
+    pipelinesascode.tekton.dev/max-keep-runs: "5"
+    pipelinesascode.tekton.dev/on-cel-expression: >-
+      target_branch == "\\ .TargetBranch //" && 
+      event == "pull_request" && 
+      files.all.exists(x, x.matches('tekton/|deleted.txt'))
+spec:
+  pipelineSpec:
+    tasks:
+      - name: changed-files-pullrequest-params
+        taskSpec:
+          steps:
+            - name: test-changed-files-params-pull
+              image: registry.access.redhat.com/ubi9/ubi-micro
+              script: |
+                # reply Should be:
+                cat <<EOF
+                changed files...
+                files.all: {{ files.all }}
+                files.added: {{ files.added }}
+                files.deleted: {{ files.deleted }}
+                files.modified: {{ files.modified }}
+                files.renamed: {{ files.renamed }}
+                EOF
