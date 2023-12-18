@@ -1,3 +1,22 @@
+# https://pipelinesascode.com/dev/
+# https://github.com/openshift-pipelines/pipelines-as-code/blob/8f990bf5f348f6529deaa3693257907b42287a35/.github/workflows/kind-e2e-tests.yaml#L90
+
+# All in one setup for e2e testing
+make dev
+
+export KUBECONFIG=/home/kcloutie/.kube/config.kind
+# Get forwarder url
+kubectl get pods -n gitea
+kubectl logs gosmee-???? -n gitea
+
+# Add webhook secret
+kubectl -n pipelines-as-code delete secret pipelines-as-code-secret
+kubectl -n pipelines-as-code create secret generic pipelines-as-code-secret \
+--from-file secrets/github-private-key \
+--from-literal github-application-id=$(pass show github-app/github-application-id) \
+--from-literal webhook.secret=$(pass show github-app/webhook.secret) 
+
+
 kubectl apply -f ./manifests
 kubectl delete -f ./manifests
 
@@ -9,12 +28,6 @@ kubectl logs deployment/pipelines-as-code-webhook -n pipelines-as-code | snazy
 
 kubectl get events --sort-by='.metadata.creationTimestamp' -n pac-e2e-test-j5nlr
 
-
-kubectl -n pipelines-as-code delete secret pipelines-as-code-secret
-kubectl -n pipelines-as-code create secret generic pipelines-as-code-secret \
---from-file secrets/github-private-key \
---from-literal github-application-id=$(pass show github-app/github-application-id) \
---from-literal webhook.secret=$(pass show github-app/webhook.secret) 
 
 export KUBECONFIG=/home/kcloutie/.kube/config.kind
 export TEST_GITHUB_API_URL=api.github.com
@@ -30,6 +43,8 @@ export TEST_GITEA_PASSWORD=pac
 export TEST_GITEA_REPO_OWNER=pac/pac
 export TEST_GITEA_SMEEURL=https://hook.pipelinesascode.com/KeaQJYHIiKea
 # export TEST_NOCLEANUP=true
+
+
 
 cd test/; go test -tags=e2e -v -run TestGithub .
 cd test/; go test -timeout=20m -tags=e2e -v -run TestGitea .
