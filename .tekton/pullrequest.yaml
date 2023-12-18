@@ -5,10 +5,8 @@ metadata:
   annotations:
     # How many runs we want to keep.
     pipelinesascode.tekton.dev/max-keep-runs: "5"
-    pipelinesascode.tekton.dev/on-cel-expression: >-
-      target_branch == "main" && 
-      event == "pull_request" && 
-      files.all.exists(x, x.matches('tekton/|deleted.txt'))
+    pipelinesascode.tekton.dev/on-cel-expression: |
+      files.modified.exists(x, x.matches('.tekton/'))
 spec:
   pipelineSpec:
     tasks:
